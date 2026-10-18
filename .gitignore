@@ -1,0 +1,23 @@
+# build output (recreated by build.bat / build.sh)
+build/
+out/
+*.class
+
+# release files are attached to GitHub releases, not committed
+dist/
+
+# IDE files
+.idea/
+*.iml
+.vscode/
+.settings/
+.project
+.classpath
+bin/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# local Claude settings
+.claude/settings.local.json
