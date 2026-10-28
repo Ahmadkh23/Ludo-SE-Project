@@ -210,8 +210,7 @@ public final class BoardCanvas extends JComponent {
         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
         g.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL, RenderingHints.VALUE_STROKE_PURE);
-        g.setColor(Theme.BACKGROUND);
-        g.fillRect(0, 0, getWidth(), getHeight());
+        Theme.paintTabletop(g, this);
         if (game == null) {
             g.dispose();
             return;
@@ -224,10 +223,13 @@ public final class BoardCanvas extends JComponent {
         oy = (getHeight() - cs * n) / 2.0;
 
         // board shadow and base
-        g.setColor(new Color(0, 0, 0, 30));
-        g.fill(new RoundRectangle2D.Double(ox + 4, oy + 6, cs * n, cs * n, 18, 18));
-        g.setColor(Theme.PANEL);
-        g.fill(new RoundRectangle2D.Double(ox - 4, oy - 4, cs * n + 8, cs * n + 8, 18, 18));
+        g.setColor(new Color(0, 0, 0, 58));
+        g.fill(new RoundRectangle2D.Double(ox + 5, oy + 7, cs * n, cs * n, 22, 22));
+        g.setColor(Theme.FELT);
+        g.fill(new RoundRectangle2D.Double(ox - 7, oy - 7, cs * n + 14, cs * n + 14, 22, 22));
+        g.setColor(new Color(230, 215, 184, 145));
+        g.setStroke(new BasicStroke(1.5f));
+        g.draw(new RoundRectangle2D.Double(ox - 4, oy - 4, cs * n + 8, cs * n + 8, 18, 18));
 
         int off = board.difficulty().outerRings();
         for (PlayerColor c : PlayerColor.values()) {
@@ -314,24 +316,32 @@ public final class BoardCanvas extends JComponent {
         };
         g.setColor(fill);
         g.fill(new java.awt.geom.Rectangle2D.Double(sx, sy, cs, cs));
-        g.setColor(Theme.BOARD_LINE);
-        g.setStroke(new BasicStroke(Math.max(1f, (float) cs / 40f)));
+        g.setColor(new Color(Theme.BOARD_LINE.getRed(), Theme.BOARD_LINE.getGreen(), Theme.BOARD_LINE.getBlue(), 175));
+        g.setStroke(new BasicStroke(Math.max(0.8f, (float) cs / 52f)));
         g.draw(new java.awt.geom.Rectangle2D.Double(sx, sy, cs, cs));
 
         double cx = sx + cs / 2;
         double cy = sy + cs / 2;
         switch (sq.type()) {
             case SAFE -> {
-                g.setColor(new Color(0x868E96));
-                g.fill(star(cx, cy, cs * 0.38, cs * 0.16));
+                g.setColor(new Color(0xB99B5E));
+                g.fill(star(cx, cy, cs * 0.35, cs * 0.17));
             }
-            case START -> text(g, "#", cx, cy, Theme.dark(sq.owner()), Font.BOLD, 0.62);
-            case ARROW -> drawArrow(g, board, sq, cx, cy);
-            case QUESTION -> text(g, "?", cx, cy, Color.WHITE, Font.BOLD, 0.62);
-            case SURPRISE -> {
-                g.setColor(new Color(255, 255, 255, 60));
+            case START -> {
+                g.setColor(new Color(255, 255, 255, 88));
                 g.fill(new Ellipse2D.Double(cx - cs * 0.34, cy - cs * 0.34, cs * 0.68, cs * 0.68));
-                text(g, "!", cx, cy, Color.WHITE, Font.BOLD, 0.6);
+                text(g, "#", cx, cy, Theme.dark(sq.owner()), Font.BOLD, 0.56);
+            }
+            case ARROW -> drawArrow(g, board, sq, cx, cy);
+            case QUESTION -> {
+                g.setColor(new Color(255, 255, 255, 75));
+                g.fill(new Ellipse2D.Double(cx - cs * 0.34, cy - cs * 0.34, cs * 0.68, cs * 0.68));
+                text(g, "?", cx, cy, Color.WHITE, Font.BOLD, 0.58);
+            }
+            case SURPRISE -> {
+                g.setColor(new Color(255, 247, 232, 90));
+                g.fill(star(cx, cy, cs * 0.35, cs * 0.17));
+                text(g, "!", cx, cy, Color.WHITE, Font.BOLD, 0.54);
             }
             default -> { }
         }

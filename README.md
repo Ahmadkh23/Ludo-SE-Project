@@ -10,6 +10,7 @@ It is written in **Java 17+ with Swing** and needs **no external libraries and n
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | MVC layers, design patterns, class diagram, turn flow |
 | [SECURITY.md](SECURITY.md) | How the question manager and the answers are protected, and why |
 | [docs/TEAM_PLAN.md](docs/TEAM_PLAN.md) | Work split for 4 members, sprint plan, GitHub workflow |
+| [Visual asset credits](src/main/resources/com/eduludo/assets/ASSET_CREDITS.txt) | CC0 sources for the tabletop texture and board-game icons |
 
 ---
 

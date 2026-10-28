@@ -65,14 +65,14 @@ public final class GamePanel extends JPanel {
 
     public GamePanel() {
         super(new BorderLayout());
-        setBackground(Theme.BACKGROUND);
+        setOpaque(false);
         add(board, BorderLayout.CENTER);
 
         // Sidebar: fixed-height controls on top, the game log takes the remaining height, buttons at the bottom.
         JPanel sidebar = new JPanel(new BorderLayout(0, 10));
         sidebar.setBackground(Theme.PANEL);
-        sidebar.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createMatteBorder(0, 1, 0, 0, Theme.BORDER),
-                BorderFactory.createEmptyBorder(16, 18, 16, 18)));
+        sidebar.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createMatteBorder(0, 5, 0, 0, Theme.PRIMARY),
+                BorderFactory.createEmptyBorder(18, 20, 18, 20)));
         sidebar.setPreferredSize(new Dimension(340, 10));
         JPanel side = new JPanel(new GridBagLayout());
         side.setOpaque(false);
@@ -88,6 +88,7 @@ public final class GamePanel extends JPanel {
         addRow(side, dice, 12);
         addRow(side, rollLabel, 0);
         rollButton.setFont(Theme.SUBHEADING);
+        rollButton.setIcon(Theme.assetIcon("dice", 20));
         rollButton.addActionListener(e -> {
             if (actions != null && rollAllowed) {
                 actions.roll();
@@ -100,7 +101,11 @@ public final class GamePanel extends JPanel {
         addRow(side, Theme.label("Game log", Theme.SMALL, Theme.MUTED), 12);
         log.setEditable(false);
         log.setFont(Theme.SMALL);
+        log.setBackground(new Color(0xFBF8F1));
+        log.setForeground(Theme.TEXT);
         JScrollPane logScroll = new JScrollPane(log);
+        logScroll.setBackground(Theme.PANEL);
+        logScroll.getViewport().setBackground(new Color(0xFBF8F1));
         logScroll.setBorder(BorderFactory.createLineBorder(Theme.BORDER));
         logScroll.setPreferredSize(new Dimension(300, 120));
 
@@ -108,6 +113,8 @@ public final class GamePanel extends JPanel {
         bottom.setOpaque(false);
         RoundButton rules = RoundButton.secondary("Rules");
         RoundButton quit = RoundButton.danger("Quit game");
+        rules.setIcon(Theme.assetIcon("rules"));
+        quit.setIcon(Theme.assetIcon("exit"));
         rules.addActionListener(e -> {
             if (actions != null) {
                 actions.showRules();
@@ -146,6 +153,13 @@ public final class GamePanel extends JPanel {
         gc.fill = GridBagConstraints.HORIZONTAL;
         gc.insets = new Insets(spaceAbove, 0, 0, 0);
         side.add(c, gc);
+    }
+
+    @Override
+    protected void paintComponent(java.awt.Graphics graphics) {
+        java.awt.Graphics2D g = (java.awt.Graphics2D) graphics.create();
+        Theme.paintTabletop(g, this);
+        g.dispose();
     }
 
     /** Connects the panel to a new game. */
@@ -194,6 +208,8 @@ public final class GamePanel extends JPanel {
         dice.setAccent(c);
         rollButton.setBase(c);
         rollButton.setTextColor(current.color() == com.eduludo.model.PlayerColor.YELLOW ? Theme.TEXT : Color.WHITE);
+        rollButton.setIcon(Theme.assetIcon("dice", 20,
+                current.color() == com.eduludo.model.PlayerColor.YELLOW ? Theme.TEXT : Color.WHITE));
         hintLabel.setText(hint());
         rebuildPlayers();
         board.repaint();
@@ -223,7 +239,9 @@ public final class GamePanel extends JPanel {
                     BorderFactory.createMatteBorder(0, 6, 0, 0, Theme.color(p.color())),
                     BorderFactory.createEmptyBorder(6, 10, 6, 14)));
             String name = p.name() + (p.isComputer() ? " (computer)" : "");
-            row.add(Theme.label(name, current ? Theme.BODY_BOLD : Theme.BODY, Theme.TEXT), BorderLayout.CENTER);
+            JLabel player = Theme.label(name, current ? Theme.BODY_BOLD : Theme.BODY, Theme.TEXT);
+            player.setIcon(Theme.assetIcon("pawn", 19, Theme.color(p.color())));
+            row.add(player, BorderLayout.CENTER);
             String status;
             int place = game.finishOrder().indexOf(p);
             if (place >= 0 && p.hasFinished()) {
