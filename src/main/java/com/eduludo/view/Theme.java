@@ -4,32 +4,47 @@ import com.eduludo.model.PlayerColor;
 import com.eduludo.model.QuestionLevel;
 
 import javax.swing.BorderFactory;
+import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.SwingConstants;
 import javax.swing.border.Border;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Font;
+import java.awt.Graphics2D;
+import java.awt.Image;
+import java.awt.RenderingHints;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
+import javax.imageio.ImageIO;
 
 /** Colours and fonts used by every screen, so the whole UI looks consistent. */
 public final class Theme {
 
-    public static final Color BACKGROUND = new Color(0xF4F1EA);
-    public static final Color PANEL = Color.WHITE;
-    public static final Color TEXT = new Color(0x22262E);
-    public static final Color MUTED = new Color(0x6B7280);
-    public static final Color PRIMARY = new Color(0x3B5BDB);
-    public static final Color PRIMARY_DARK = new Color(0x2F4AB8);
-    public static final Color DANGER = new Color(0xC92A2A);
-    public static final Color SUCCESS = new Color(0x2B8A3E);
-    public static final Color BORDER = new Color(0xD9D4C7);
-    public static final Color BOARD_LINE = new Color(0x8A8172);
-    public static final Color TRACK = new Color(0xFFFDF8);
-    public static final Color RING = new Color(0xF1ECE0);
-    public static final Color SAFE = new Color(0xE9ECEF);
-    public static final Color SURPRISE = new Color(0x9C36B5);
+    public static final Color BACKGROUND = new Color(0xF2EBDD);
+    public static final Color PANEL = new Color(0xFFFDF8);
+    public static final Color TEXT = new Color(0x26352E);
+    public static final Color MUTED = new Color(0x71786F);
+    public static final Color PRIMARY = new Color(0x245B49);
+    public static final Color PRIMARY_DARK = new Color(0x174535);
+    public static final Color DANGER = new Color(0xB74738);
+    public static final Color SUCCESS = new Color(0x347857);
+    public static final Color BORDER = new Color(0xD9CCB4);
+    public static final Color BOARD_LINE = new Color(0xC4B79D);
+    public static final Color TRACK = new Color(0xFBF6EA);
+    public static final Color RING = new Color(0xEAE0CD);
+    public static final Color SAFE = new Color(0xE5EDE2);
+    public static final Color SURPRISE = new Color(0xC86A48);
+    public static final Color FELT = new Color(0x245B49);
+    private static final BufferedImage TABLETOP = loadTabletop();
+    private static final Map<String, BufferedImage> ICONS = new HashMap<>();
 
-    public static final Font TITLE = new Font(Font.SANS_SERIF, Font.BOLD, 40);
+    public static final Font TITLE = new Font(Font.SERIF, Font.BOLD, 40);
     public static final Font HEADING = new Font(Font.SANS_SERIF, Font.BOLD, 22);
     public static final Font SUBHEADING = new Font(Font.SANS_SERIF, Font.BOLD, 16);
     public static final Font BODY = new Font(Font.SANS_SERIF, Font.PLAIN, 14);
@@ -40,12 +55,34 @@ public final class Theme {
     private Theme() {
     }
 
+    private static BufferedImage loadTabletop() {
+        try (InputStream input = Theme.class.getResourceAsStream("/com/eduludo/assets/tabletop-wood.jpg")) {
+            if (input == null) {
+                throw new IllegalStateException("Missing visual asset: tabletop-wood.jpg");
+            }
+            return ImageIO.read(input);
+        } catch (IOException e) {
+            throw new IllegalStateException("Unable to load tabletop background texture", e);
+        }
+    }
+
+    public static BufferedImage tabletop() {
+        return TABLETOP;
+    }
+
+    public static void paintTabletop(Graphics2D g, Component component) {
+        g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+        g.drawImage(TABLETOP, 0, 0, component.getWidth(), component.getHeight(), null);
+        g.setColor(new Color(25, 39, 29, 132));
+        g.fillRect(0, 0, component.getWidth(), component.getHeight());
+    }
+
     public static Color color(PlayerColor c) {
         return switch (c) {
-            case RED -> new Color(0xE03131);
-            case GREEN -> new Color(0x2F9E44);
-            case YELLOW -> new Color(0xF2B705);
-            case BLUE -> new Color(0x1C7ED6);
+            case RED -> new Color(0xC95245);
+            case GREEN -> new Color(0x43845D);
+            case YELLOW -> new Color(0xD5A83F);
+            case BLUE -> new Color(0x4D78A5);
         };
     }
 
@@ -59,9 +96,9 @@ public final class Theme {
 
     public static Color color(QuestionLevel level) {
         return switch (level) {
-            case EASY -> new Color(0x40C057);
-            case MEDIUM -> new Color(0xFAB005);
-            case HARD -> new Color(0xF03E3E);
+            case EASY -> new Color(0x538B66);
+            case MEDIUM -> new Color(0xD09C42);
+            case HARD -> new Color(0xBA5C50);
         };
     }
 
@@ -85,6 +122,46 @@ public final class Theme {
         JLabel l = label(text, font, color);
         l.setHorizontalAlignment(SwingConstants.CENTER);
         return l;
+    }
+
+    public static ImageIcon assetIcon(String name) {
+        return assetIcon(name, 24);
+    }
+
+    public static ImageIcon assetIcon(String name, int size) {
+        BufferedImage source = loadIcon(name);
+        Image image = source.getScaledInstance(size, size, Image.SCALE_SMOOTH);
+        return new ImageIcon(image);
+    }
+
+    public static ImageIcon assetIcon(String name, int size, Color tint) {
+        BufferedImage source = loadIcon(name);
+        BufferedImage colored = new BufferedImage(source.getWidth(), source.getHeight(), BufferedImage.TYPE_INT_ARGB);
+        for (int y = 0; y < source.getHeight(); y++) {
+            for (int x = 0; x < source.getWidth(); x++) {
+                int alpha = source.getRGB(x, y) >>> 24;
+                colored.setRGB(x, y, (alpha << 24) | (tint.getRGB() & 0x00FFFFFF));
+            }
+        }
+        return new ImageIcon(colored.getScaledInstance(size, size, Image.SCALE_SMOOTH));
+    }
+
+    private static BufferedImage loadIcon(String name) {
+        BufferedImage existing = ICONS.get(name);
+        if (existing != null) {
+            return existing;
+        }
+        URL resource = Theme.class.getResource("/com/eduludo/assets/icons/" + name + ".png");
+        if (resource == null) {
+            throw new IllegalStateException("Missing visual asset: " + name);
+        }
+        try {
+            BufferedImage image = ImageIO.read(resource);
+            ICONS.put(name, image);
+            return image;
+        } catch (IOException e) {
+            throw new IllegalStateException("Unable to load visual asset: " + name, e);
+        }
     }
 
     public static Border card() {

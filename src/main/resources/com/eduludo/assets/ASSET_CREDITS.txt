@@ -1,0 +1,13 @@
+Visual asset sources
+====================
+
+tabletop-wood.jpg
+  WoodFloor049 color map from ambientCG (https://ambientcg.com/a/WoodFloor049).
+  Creative Commons CC0 1.0 Universal. Resized and recompressed for the application.
+  License: https://docs.ambientcg.com/license/
+
+icons/*.png
+  Cropped board-game glyphs from Kenney's Board Game Icons preview
+  (https://kenney.nl/assets/board-game-icons), released under CC0 1.0.
+  The glyphs were recolored, flipped where appropriate, and scaled for the
+  screens. Attribution is not required.

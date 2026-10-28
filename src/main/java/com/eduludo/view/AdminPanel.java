@@ -17,6 +17,7 @@ import javax.swing.event.DocumentListener;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableRowSorter;
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.FlowLayout;
 import java.util.ArrayList;
 import java.util.List;
@@ -64,12 +65,14 @@ public final class AdminPanel extends JPanel {
 
     public AdminPanel() {
         super(new BorderLayout(0, 12));
-        setBackground(Theme.BACKGROUND);
+        setOpaque(false);
         setBorder(BorderFactory.createEmptyBorder(22, 28, 22, 28));
 
         JPanel top = new JPanel(new BorderLayout());
         top.setOpaque(false);
-        top.add(Theme.label("Question manager", Theme.HEADING, Theme.TEXT), BorderLayout.WEST);
+        JLabel title = Theme.label("Question manager", Theme.HEADING, Theme.TEXT);
+        title.setIcon(Theme.assetIcon("admin", 28, Theme.PRIMARY));
+        top.add(title, BorderLayout.WEST);
         JPanel filters = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 0));
         filters.setOpaque(false);
         filters.add(Theme.label("Search:", Theme.BODY, Theme.MUTED));
@@ -80,7 +83,16 @@ public final class AdminPanel extends JPanel {
 
         table.setRowHeight(26);
         table.setFont(Theme.BODY);
+        table.setForeground(Theme.TEXT);
+        table.setBackground(Theme.PANEL);
+        table.setGridColor(Theme.BORDER);
+        table.setSelectionBackground(new Color(0xDCE9DF));
+        table.setSelectionForeground(Theme.TEXT);
+        table.setShowVerticalLines(false);
         table.getTableHeader().setFont(Theme.BODY_BOLD);
+        table.getTableHeader().setBackground(Theme.PRIMARY);
+        table.getTableHeader().setForeground(Theme.PANEL);
+        table.getTableHeader().setOpaque(true);
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         table.setRowSorter(sorter);
         table.getColumnModel().getColumn(0).setPreferredWidth(40);
@@ -97,6 +109,8 @@ public final class AdminPanel extends JPanel {
             }
         });
         JScrollPane scroll = new JScrollPane(table);
+        scroll.setBackground(Theme.PANEL);
+        scroll.getViewport().setBackground(Theme.PANEL);
         scroll.setBorder(BorderFactory.createLineBorder(Theme.BORDER));
         add(scroll, BorderLayout.CENTER);
 
@@ -118,6 +132,10 @@ public final class AdminPanel extends JPanel {
         };
         search.getDocument().addDocumentListener(dl);
         levelFilter.addActionListener(e -> applyFilter());
+        search.setBackground(Theme.PANEL);
+        search.setForeground(Theme.TEXT);
+        search.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(Theme.BORDER),
+                BorderFactory.createEmptyBorder(4, 8, 4, 8)));
 
         JPanel bottom = new JPanel(new BorderLayout());
         bottom.setOpaque(false);
@@ -129,6 +147,8 @@ public final class AdminPanel extends JPanel {
         RoundButton delete = RoundButton.danger("Delete");
         RoundButton password = RoundButton.secondary("Change password");
         RoundButton logout = RoundButton.secondary("Log out");
+        password.setIcon(Theme.assetIcon("admin"));
+        logout.setIcon(Theme.assetIcon("exit"));
         add.addActionListener(e -> actions.add());
         edit.addActionListener(e -> {
             if (selected() == null) {
@@ -153,6 +173,13 @@ public final class AdminPanel extends JPanel {
         buttons.add(logout);
         bottom.add(buttons, BorderLayout.EAST);
         add(bottom, BorderLayout.SOUTH);
+    }
+
+    @Override
+    protected void paintComponent(java.awt.Graphics graphics) {
+        java.awt.Graphics2D g = (java.awt.Graphics2D) graphics.create();
+        Theme.paintTabletop(g, this);
+        g.dispose();
     }
 
     public void setActions(Actions actions) {

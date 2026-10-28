@@ -92,6 +92,7 @@ public final class Dialogs {
         root.setBackground(Theme.PANEL);
         root.setBorder(BorderFactory.createEmptyBorder(20, 26, 18, 26));
         JLabel title = Theme.centered(record.winnerName() + " wins!", Theme.HEADING, Theme.TEXT);
+        title.setIcon(Theme.assetIcon("crown"));
         root.add(title, BorderLayout.NORTH);
         JPanel rows = new JPanel(new GridLayout(0, 1, 0, 6));
         rows.setOpaque(false);

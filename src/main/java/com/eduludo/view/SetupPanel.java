@@ -59,12 +59,24 @@ public final class SetupPanel extends JPanel {
 
     public SetupPanel(Actions actions) {
         super(new GridBagLayout());
-        setBackground(Theme.BACKGROUND);
+        setOpaque(false);
         JPanel card = new JPanel(new BorderLayout(0, 16));
         card.setBackground(Theme.PANEL);
         card.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(Theme.BORDER, 1, true),
-                BorderFactory.createEmptyBorder(24, 30, 22, 30)));
-        card.add(Theme.label("New game", Theme.HEADING, Theme.TEXT), BorderLayout.NORTH);
+                BorderFactory.createEmptyBorder(28, 34, 28, 34)));
+        JPanel heading = new JPanel(new BorderLayout(14, 0));
+        heading.setOpaque(false);
+        JLabel mark = new JLabel(Theme.assetIcon("pawn"));
+        mark.setOpaque(true);
+        mark.setBackground(Theme.PRIMARY);
+        mark.setBorder(BorderFactory.createEmptyBorder(9, 9, 9, 9));
+        heading.add(mark, BorderLayout.WEST);
+        JPanel headingText = new JPanel(new GridLayout(0, 1, 0, 3));
+        headingText.setOpaque(false);
+        headingText.add(Theme.label("Set up your table", Theme.HEADING, Theme.TEXT));
+        headingText.add(Theme.label("Choose a level and who's playing.", Theme.SMALL, Theme.MUTED));
+        heading.add(headingText, BorderLayout.CENTER);
+        card.add(heading, BorderLayout.NORTH);
 
         JPanel form = new JPanel(new GridBagLayout());
         form.setOpaque(false);
@@ -95,6 +107,8 @@ public final class SetupPanel extends JPanel {
             JRadioButton rb = new JRadioButton(descriptions[d.ordinal()]);
             rb.setOpaque(false);
             rb.setFont(Theme.BODY);
+            rb.setForeground(Theme.TEXT);
+            rb.setIconTextGap(10);
             group.add(rb);
             levels[d.ordinal()] = rb;
             levelPanel.add(rb);
@@ -106,7 +120,7 @@ public final class SetupPanel extends JPanel {
         gc.gridy++;
         gc.gridwidth = 2;
         gc.fill = GridBagConstraints.HORIZONTAL;
-        JPanel table = new JPanel(new GridLayout(0, 1, 0, 6));
+        JPanel table = new JPanel(new GridLayout(0, 1, 0, 7));
         table.setOpaque(false);
         JPanel header = row(Theme.label("Name", Theme.SMALL, Theme.MUTED), Theme.label("Colour", Theme.SMALL, Theme.MUTED),
                 Theme.label("Computer", Theme.SMALL, Theme.MUTED));
@@ -115,14 +129,27 @@ public final class SetupPanel extends JPanel {
         for (int i = 0; i < 4; i++) {
             names[i] = new JTextField("Player " + (i + 1), 14);
             names[i].setFont(Theme.BODY);
+            names[i].setBackground(new Color(0xFFFDF8));
+            names[i].setForeground(Theme.TEXT);
+            names[i].setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(Theme.BORDER),
+                    BorderFactory.createEmptyBorder(3, 8, 3, 8)));
             ((AbstractDocument) names[i].getDocument()).setDocumentFilter(new MaxLength(Game.Builder.MAX_NAME_LENGTH));
             JComboBox<PlayerColor> cb = new JComboBox<>(all);
             cb.setSelectedItem(all[i]);
             cb.setRenderer(new ColorRenderer());
             colors.add(cb);
             computer[i] = new JCheckBox();
+            computer[i].setText("AI");
+            computer[i].setToolTipText("Play this seat with a computer opponent");
+            computer[i].setForeground(Theme.TEXT);
+            computer[i].setFont(Theme.SMALL);
             computer[i].setOpaque(false);
             rows[i] = row(names[i], cb, computer[i]);
+            rows[i].setBackground(i % 2 == 0 ? new Color(0xF5F0E5) : new Color(0xFBF8F1));
+            rows[i].setBorder(BorderFactory.createCompoundBorder(
+                    BorderFactory.createMatteBorder(0, 3, 0, 0, Theme.color(all[i])),
+                    BorderFactory.createEmptyBorder(4, 8, 4, 4)));
+            rows[i].setOpaque(true);
             table.add(rows[i]);
         }
         form.add(table, gc);
@@ -135,6 +162,8 @@ public final class SetupPanel extends JPanel {
         buttons.setOpaque(false);
         RoundButton back = RoundButton.secondary("Back");
         RoundButton start = RoundButton.primary("Start game");
+        back.setIcon(Theme.assetIcon("back"));
+        start.setIcon(Theme.assetIcon("pawn"));
         back.addActionListener(e -> actions.back());
         start.addActionListener(e -> {
             String problem = validateInput();
@@ -152,6 +181,13 @@ public final class SetupPanel extends JPanel {
         card.setPreferredSize(new Dimension(680, 540));
         add(card);
         updateRows();
+    }
+
+    @Override
+    protected void paintComponent(java.awt.Graphics graphics) {
+        java.awt.Graphics2D g = (java.awt.Graphics2D) graphics.create();
+        Theme.paintTabletop(g, this);
+        g.dispose();
     }
 
     private static JPanel row(Component name, Component color, Component bot) {

@@ -105,12 +105,13 @@ public final class DiceView extends JComponent {
         boolean showMult = multiplierFaces > 0;
         int total = showMult ? size * 2 + 22 : size;
         int x0 = (getWidth() - total) / 2;
-        drawDie(g, x0, 4, size, normal, Color.WHITE, accent);
+        drawDie(g, x0, 4, size, normal, new Color(0xFFFDF8), accent);
         label(g, "Normal", x0 + size / 2, size + 20);
         if (showMult) {
             int mx = x0 + size + 22;
-            Color fill = "UltraBoost".equals(multiplierName) ? new Color(0x212529) : new Color(0x5F3DC4);
-            drawDie(g, mx, 4, size, multiplierFace, fill, Color.WHITE);
+            Color fill = "UltraBoost".equals(multiplierName) ? Theme.PRIMARY_DARK : new Color(0xD6B66D);
+            Color pips = "UltraBoost".equals(multiplierName) ? new Color(0xF5E9C9) : Theme.PRIMARY_DARK;
+            drawDie(g, mx, 4, size, multiplierFace, fill, pips);
             String name = multiplierName == null ? "Boost" : multiplierName;
             label(g, multiplierFace > 0 ? name + "  x" + (multiplierFace - 1) : name, mx + size / 2, size + 20);
         }
@@ -125,13 +126,15 @@ public final class DiceView extends JComponent {
     }
 
     private void drawDie(Graphics2D g, int x, int y, int size, int value, Color fill, Color pip) {
-        g.setColor(new Color(0, 0, 0, 40));
-        g.fill(new RoundRectangle2D.Double(x + 2, y + 4, size, size, size * 0.24, size * 0.24));
+        g.setColor(new Color(20, 32, 24, 55));
+        g.fill(new RoundRectangle2D.Double(x + 3, y + 5, size, size, size * 0.23, size * 0.23));
+        g.setColor(new Color(0xB99B5E));
+        g.fill(new RoundRectangle2D.Double(x - 1, y - 1, size + 2, size + 2, size * 0.24, size * 0.24));
         g.setColor(fill);
-        g.fill(new RoundRectangle2D.Double(x, y, size, size, size * 0.24, size * 0.24));
-        g.setColor(Theme.BORDER.darker());
-        g.setStroke(new BasicStroke(1.5f));
-        g.draw(new RoundRectangle2D.Double(x, y, size, size, size * 0.24, size * 0.24));
+        g.fill(new RoundRectangle2D.Double(x + 2, y + 2, size - 4, size - 4, size * 0.20, size * 0.20));
+        g.setColor(new Color(255, 255, 255, 115));
+        g.setStroke(new BasicStroke(1f));
+        g.draw(new RoundRectangle2D.Double(x + 5, y + 5, size - 10, size - 10, size * 0.16, size * 0.16));
         g.setColor(pip);
         double cell = size / 3.0;
         double r = size * 0.09;

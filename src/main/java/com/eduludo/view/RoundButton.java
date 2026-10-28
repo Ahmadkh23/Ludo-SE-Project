@@ -1,6 +1,7 @@
 package com.eduludo.view;
 
 import javax.swing.JButton;
+import javax.swing.Icon;
 import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Dimension;
@@ -38,7 +39,7 @@ public final class RoundButton extends JButton {
     }
 
     public static RoundButton secondary(String text) {
-        return new RoundButton(text, new Color(0xE9E4D8), Theme.TEXT);
+        return new RoundButton(text, new Color(0xEAE2D3), Theme.TEXT);
     }
 
     public static RoundButton danger(String text) {
@@ -58,7 +59,11 @@ public final class RoundButton extends JButton {
     @Override
     public Dimension getPreferredSize() {
         FontMetrics fm = getFontMetrics(getFont());
-        return new Dimension(Math.max(110, fm.stringWidth(getText()) + 36), Math.max(40, fm.getHeight() + 18));
+        Icon icon = getIcon();
+        int iconWidth = icon == null ? 0 : icon.getIconWidth() + 10;
+        int iconHeight = icon == null ? 0 : icon.getIconHeight() + 12;
+        return new Dimension(Math.max(110, fm.stringWidth(getText()) + 36 + iconWidth),
+                Math.max(40, Math.max(fm.getHeight() + 18, iconHeight)));
     }
 
     @Override
@@ -74,8 +79,10 @@ public final class RoundButton extends JButton {
         } else if (getModel().isRollover()) {
             fill = Theme.mix(base, Color.BLACK, 0.08);
         }
+        g2.setColor(new Color(0, 0, 0, isEnabled() ? 22 : 10));
+        g2.fillRoundRect(0, 2, getWidth() - 1, getHeight() - 2, 14, 14);
         g2.setColor(fill);
-        g2.fillRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 14, 14);
+        g2.fillRoundRect(0, 0, getWidth() - 1, getHeight() - 3, 14, 14);
         if (isFocusOwner()) {
             g2.setColor(Theme.mix(fill, Color.BLACK, 0.35));
             g2.drawRoundRect(1, 1, getWidth() - 3, getHeight() - 3, 12, 12);
@@ -83,7 +90,15 @@ public final class RoundButton extends JButton {
         g2.setFont(getFont());
         FontMetrics fm = g2.getFontMetrics();
         g2.setColor(isEnabled() ? textColor : Theme.mix(textColor, fill, 0.45));
-        int x = (getWidth() - fm.stringWidth(getText())) / 2;
+        Icon icon = getIcon();
+        int iconWidth = icon == null ? 0 : icon.getIconWidth();
+        int gap = icon == null ? 0 : 10;
+        int contentWidth = iconWidth + gap + fm.stringWidth(getText());
+        int x = (getWidth() - contentWidth) / 2;
+        if (icon != null) {
+            icon.paintIcon(this, g2, x, (getHeight() - icon.getIconHeight()) / 2 - 1);
+            x += iconWidth + gap;
+        }
         int y = (getHeight() - fm.getHeight()) / 2 + fm.getAscent();
         g2.drawString(getText(), x, y);
         g2.dispose();
