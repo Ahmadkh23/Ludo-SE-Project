@@ -1,0 +1,91 @@
+EduLudo test run
+Date: 2026-10-31
+Command: bash build.sh
+Result: 71 tests run, 71 passed, 0 failed
+
+=== Cleaning
+=== Compiling application
+=== Compiling tests
+=== Running tests
+BoardFactoryTest
+  PASS  eachColourHasItsOwnArrowsOnItsPathAndItsOwnFinish
+  PASS  everyPathIsContinuousUniqueAndInsideTheGrid
+  PASS  fixedSquareCountsPerLevel
+  PASS  pathLengthsMatchTheSpecification
+  PASS  protectionRulesFollowTheSpecification
+  PASS  randomSquaresChangeBetweenGamesButNeverReplaceFixedSquares
+  PASS  startSquaresAreOwnedAndInTheCornerOnMediumAndHard
+  PASS  trackSizesAre52Then64Then72
+GameRulesTest
+  PASS  aCorrectAnswerMovesForwardByTheQuestionLevel
+  PASS  aCorrectAnswerStopsAtTheFinish
+  PASS  aCorrectAnswerStopsBeforeAnOpponentBlock
+  PASS  aDoubleBlockCannotBeLandedOn
+  PASS  aDoubleBlockCannotBePassed
+  PASS  aDoubleBlockIsBrokenWhenOnePieceMoves
+  PASS  aDoubleBlockOnTheStartSquareStopsEntering
+  PASS  aPieceLeavesTheCastleOnlyWithASix
+  PASS  aSixCanMoveAPieceAlreadyOnTheBoard
+  PASS  aSixWithBoostOffersEnterOrTheMultipliedMove
+  PASS  aSixWithBoostZeroStillEntersAPiece
+  PASS  aWrongAnswerMovesBackByTheQuestionLevel
+  PASS  aWrongAnswerNeverMovesBehindTheStartSquare
+  PASS  actionsAreRejectedInTheWrongPhase
+  PASS  boostMultipliesTheNormalDieByNMinusOne
+  PASS  boostOfOneGivesZeroStepsAndNoMove
+  PASS  enteringPutsThePieceOnTheStartSquareAndASixGivesAnotherRoll
+  PASS  hardLevelUsesUltraBoostWithMultipliersUpToFive
+  PASS  landingOnASingleOpponentPieceCapturesIt
+  PASS  listenersReceiveEvents
+  PASS  movingInFrontOfADoubleBlockIsAllowed
+  PASS  ownPiecesFormABlockAndCanShareASquare
+  PASS  piecesOnASafeSquareCannotBeCaptured
+  PASS  piecesOnAStartSquareCannotBeCaptured
+  PASS  setupRulesAreEnforced
+  PASS  surpriseBackThreeSquares
+  PASS  surpriseBackToCastle
+  PASS  surpriseLoseNextTurn
+  PASS  surpriseMoveOpponentPushesTheChosenPieceBackHalfARoll
+  PASS  surpriseRocketSendsThePieceToTheFinish
+  PASS  surpriseUltraBoostBonusRollDoesNotCountTowardThreeSixes
+  PASS  surpriseWeightsMatchTheSpecification
+  PASS  theFinishNeedsAnExactRoll
+  PASS  theGameEndsWhenAllPlayersButOneHaveFinished
+  PASS  theThirdSixInARowIsCancelledAndTheTurnPasses
+  PASS  tooBigARollMustBeUsedByAnotherPiece
+ComputerPlayerTest
+  PASS  computerAnswersMatchTheConfiguredAccuracy
+  PASS  computerOnlyGamesAlwaysFinishOnEveryLevel
+DiceStrategyTest
+  PASS  boostDiceHasThreeFacesAllReachable
+  PASS  diceRollSixIsDetectedOnlyFromTheNormalFace
+  PASS  diceRollWithAMultiplierComputesTheRightStepsAndDescription
+  PASS  diceRollWithoutAMultiplierReportsNoMultiplierAndStepsEqualNormal
+  PASS  normalDiceHasSixFacesAllReachable
+  PASS  oneStepIsDescribedInSingular
+  PASS  rollNeverExceedsTheDiesFaceCount
+  PASS  ultraBoostDiceHasSixFacesAllReachable
+PersistenceTest
+  PASS  aDamagedHistoryLineIsSkipped
+  PASS  historyIsSavedAndReadBackNewestFirst
+  PASS  jsonRoundTripsAllValueTypes
+  PASS  questionsAreStoredEncryptedAndCreatedFromDefaultsOnFirstRun
+  PASS  theDefaultQuestionBankIsValidAndLargeEnough
+SecurityTest
+  PASS  encryptedDataRoundTripsAndTamperingIsDetected
+  PASS  fiveWrongPasswordsLockTheLogin
+  PASS  loginWorksOnlyWithTheRightPassword
+  PASS  sessionsExpire
+  PASS  thePasswordCanBeChanged
+  PASS  thePasswordIsStoredOnlyAsASaltedHash
+  PASS  weakPasswordsAreRejectedAndSetupHappensOnce
+QuestionServiceTest
+  PASS  adminCanAddEditAndDelete
+  PASS  adminOperationsNeedAValidSession
+  PASS  drawReturnsTheRequestedLevelWithoutRepeatsUntilAllAreUsed
+  PASS  invalidQuestionsAreRejected
+  PASS  theBankKeepsAtLeastThirtyQuestionsAndEveryLevel
+
+Tests run: 71, passed: 71, failed: 0
+=== Creating dist/EduLudo.jar
+Done: dist/EduLudo.jar  (run with: java -jar dist/EduLudo.jar)
