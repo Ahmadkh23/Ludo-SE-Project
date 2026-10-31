@@ -1,0 +1,1445 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#17211c">
+  <title>EduLudo — Classroom Showcase</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --ink: #edf2e8;
+      --muted: #a7b3a5;
+      --panel: #202b25;
+      --panel-soft: #26332c;
+      --line: #36453b;
+      --gold: #efc578;
+      --red: #df665c;
+      --green: #64b985;
+      --yellow: #f0c84f;
+      --blue: #629bdb;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(ellipse at 18% 0%, #344338 0, transparent 38rem),
+        #17211c;
+      color: var(--ink);
+      font: 15px/1.45 Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    button, select {
+      font: inherit;
+    }
+
+    button:focus-visible, select:focus-visible, canvas:focus-visible {
+      outline: 3px solid var(--gold);
+      outline-offset: 3px;
+    }
+
+    .shell {
+      width: min(1500px, 100%);
+      margin: 0 auto;
+      padding: 22px clamp(16px, 3vw, 42px) 28px;
+    }
+
+    .topbar, .brand, .top-actions, .section-heading, .turn-heading, .player-heading,
+    .dice-row, .event-heading, .footer, .modal-actions, .settings, .current-player {
+      display: flex;
+      align-items: center;
+    }
+
+    .topbar {
+      justify-content: space-between;
+      gap: 20px;
+      padding-bottom: 22px;
+      border-bottom: 1px solid #ffffff16;
+    }
+
+    .brand { gap: 12px; }
+
+    .brand-mark {
+      display: grid;
+      width: 44px;
+      height: 44px;
+      place-items: center;
+      border: 1px solid #f0c87866;
+      border-radius: 14px;
+      background: linear-gradient(145deg, #f0c87824, #f0c87808);
+      color: var(--gold);
+      font-size: 24px;
+      font-weight: 850;
+    }
+
+    .brand-name { font-size: 16px; font-weight: 800; letter-spacing: .02em; }
+    .brand-caption { margin-top: 2px; color: var(--muted); font-size: 11px; letter-spacing: .14em; text-transform: uppercase; }
+    .top-actions { gap: 10px; }
+
+    .eyebrow {
+      margin: 0;
+      color: var(--gold);
+      font-size: 11px;
+      font-weight: 750;
+      letter-spacing: .17em;
+      text-transform: uppercase;
+    }
+
+    .intro {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 22px;
+      padding: 25px 0 20px;
+    }
+
+    h1 {
+      margin: 5px 0 0;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(29px, 4vw, 44px);
+      font-weight: 600;
+      letter-spacing: -.035em;
+      line-height: 1.05;
+    }
+
+    .intro-copy {
+      max-width: 430px;
+      margin: 0 0 2px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .settings { gap: 10px; }
+
+    .setting {
+      display: grid;
+      gap: 4px;
+      color: var(--muted);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+    }
+
+    select {
+      min-width: 104px;
+      padding: 9px 30px 9px 11px;
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      background: var(--panel);
+      color: var(--ink);
+      cursor: pointer;
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-height: 40px;
+      padding: 0 15px;
+      border: 1px solid transparent;
+      border-radius: 10px;
+      background: var(--panel-soft);
+      color: var(--ink);
+      font-weight: 750;
+      cursor: pointer;
+      transition: transform .15s ease, background .15s ease, border-color .15s ease;
+    }
+
+    .button:hover:not(:disabled) { transform: translateY(-1px); background: #334138; }
+    .button:disabled { opacity: .48; cursor: not-allowed; }
+    .button-primary {
+      border-color: #f1cb8190;
+      background: linear-gradient(135deg, #efc578, #dca855);
+      color: #24261e;
+      box-shadow: 0 6px 20px #dca85524;
+    }
+    .button-primary:hover:not(:disabled) { background: #f5d18d; }
+    .button-quiet { border-color: var(--line); background: transparent; }
+    .button-small { min-height: 35px; padding: 0 12px; font-size: 12px; }
+
+    .game-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 325px;
+      align-items: start;
+      gap: 20px;
+    }
+
+    .board-card, .side-card {
+      border: 1px solid #ffffff12;
+      border-radius: 18px;
+      background: linear-gradient(150deg, #26332c, #202a24 68%);
+      box-shadow: 0 18px 50px #08100b38, inset 0 1px #ffffff08;
+    }
+
+    .board-card { padding: clamp(12px, 2vw, 22px); }
+    .section-heading { justify-content: space-between; gap: 16px; margin-bottom: 14px; }
+    .section-heading h2, .side-card h2 { margin: 0; font-size: 15px; font-weight: 750; }
+    .board-tag {
+      padding: 5px 9px;
+      border: 1px solid #ffffff18;
+      border-radius: 999px;
+      color: var(--muted);
+      font-size: 10px;
+      font-weight: 750;
+      letter-spacing: .09em;
+      text-transform: uppercase;
+    }
+
+    .board-frame {
+      position: relative;
+      overflow: hidden;
+      width: 100%;
+      aspect-ratio: 1;
+      border: 1px solid #ba9b6966;
+      border-radius: 14px;
+      background: #d7c8a9;
+      box-shadow: 0 10px 24px #080f0b55, inset 0 0 0 5px #f4e7c536;
+    }
+
+    canvas { display: block; width: 100%; height: 100%; touch-action: manipulation; }
+
+    .board-legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 17px;
+      margin: 13px 2px 0;
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .legend-item { display: inline-flex; align-items: center; gap: 6px; }
+    .legend-symbol {
+      display: inline-grid;
+      width: 20px;
+      height: 20px;
+      place-items: center;
+      border: 1px solid #ffffff32;
+      border-radius: 6px;
+      color: white;
+      font-size: 12px;
+      font-weight: 900;
+    }
+    .legend-question { background: #7b70bd; }
+    .legend-safe { background: #c9a765; }
+    .legend-surprise { background: #d17d51; }
+    .legend-start { background: #4a6651; }
+
+    .sidebar { display: grid; gap: 14px; }
+    .side-card { padding: 17px; }
+    .turn-heading { justify-content: space-between; gap: 12px; }
+    .turn-status {
+      padding: 5px 9px;
+      border: 1px solid #7ab88d4c;
+      border-radius: 999px;
+      background: #64b98519;
+      color: #91d6a8;
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    .current-player { gap: 11px; margin: 17px 0 15px; }
+    .player-avatar {
+      display: grid;
+      width: 43px;
+      height: 43px;
+      place-items: center;
+      border: 1px solid #ffffff31;
+      border-radius: 13px;
+      color: #fff;
+      font-size: 21px;
+      box-shadow: inset 0 1px #ffffff44;
+    }
+    .current-name { font-size: 16px; font-weight: 800; }
+    .current-subtitle { margin-top: 2px; color: var(--muted); font-size: 11px; }
+    .dice-row { gap: 8px; margin: 14px 0; }
+    .die {
+      display: grid;
+      width: 48px;
+      height: 48px;
+      place-items: center;
+      border: 1px solid #efdfc2;
+      border-radius: 12px;
+      background: linear-gradient(145deg, #fff8e9, #e8dcc5);
+      color: #26332c;
+      font-size: 25px;
+      font-weight: 900;
+      box-shadow: 0 5px 10px #0002, inset 0 1px #fff;
+    }
+    .die-placeholder { color: #8d8a7f; }
+    .roll-summary { color: var(--muted); font-size: 11px; }
+    .roll-summary strong { display: block; margin-top: 2px; color: var(--ink); font-size: 13px; }
+    #rollButton { width: 100%; min-height: 45px; }
+    .instruction { min-height: 18px; margin: 10px 0 0; color: var(--muted); font-size: 11px; text-align: center; }
+
+    .player-list { display: grid; gap: 8px; margin-top: 14px; }
+    .player-row {
+      display: grid;
+      grid-template-columns: 10px minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 9px;
+      padding: 9px 10px;
+      border: 1px solid transparent;
+      border-radius: 10px;
+      background: #ffffff06;
+    }
+    .player-row.active { border-color: #efc57850; background: #efc5780d; }
+    .player-dot { width: 9px; height: 9px; border-radius: 50%; }
+    .player-row-name { overflow: hidden; font-size: 12px; font-weight: 750; text-overflow: ellipsis; white-space: nowrap; }
+    .player-row-score { color: var(--muted); font-size: 10px; }
+    .player-row.finished .player-row-name { color: #b6d2b7; }
+
+    .event-heading { justify-content: space-between; }
+    .event-heading span { color: var(--muted); font-size: 10px; }
+    .event-log {
+      display: grid;
+      gap: 9px;
+      max-height: 195px;
+      overflow: auto;
+      margin: 13px 0 0;
+      padding: 0 4px 0 0;
+      list-style: none;
+      scrollbar-color: #4c5d50 transparent;
+      scrollbar-width: thin;
+    }
+    .event-log li {
+      position: relative;
+      padding-left: 13px;
+      color: var(--muted);
+      font-size: 11px;
+    }
+    .event-log li::before {
+      position: absolute;
+      top: .48em;
+      left: 0;
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--gold);
+      content: "";
+    }
+    .event-log time { margin-right: 5px; color: #77877a; font-variant-numeric: tabular-nums; }
+
+    .footer {
+      justify-content: space-between;
+      gap: 20px;
+      margin-top: 15px;
+      color: #819084;
+      font-size: 10px;
+    }
+    .footer strong { color: #c3cfbf; }
+
+    .modal-backdrop {
+      position: fixed;
+      z-index: 5;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      padding: 18px;
+      background: #101812c9;
+      backdrop-filter: blur(7px);
+    }
+    .modal-backdrop[hidden] { display: none; }
+    .modal {
+      width: min(510px, 100%);
+      padding: clamp(22px, 5vw, 34px);
+      border: 1px solid #ffffff20;
+      border-radius: 20px;
+      background: linear-gradient(145deg, #2c3a31, #202923);
+      box-shadow: 0 28px 80px #0008;
+    }
+    .modal h2 {
+      margin: 8px 0 12px;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 27px;
+      font-weight: 600;
+      line-height: 1.15;
+    }
+    .modal-copy { margin: 0; color: #d3dbd0; font-size: 14px; }
+    .answer-list { display: grid; gap: 8px; margin: 20px 0 0; padding: 0; list-style: none; }
+    .answer-button {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1px solid #ffffff1a;
+      border-radius: 10px;
+      background: #ffffff08;
+      color: var(--ink);
+      cursor: pointer;
+      text-align: left;
+      transition: background .15s ease, border-color .15s ease;
+    }
+    .answer-button:hover:not(:disabled) { border-color: #efc57877; background: #efc57812; }
+    .answer-button:disabled { cursor: default; }
+    .answer-button.correct { border-color: #64b985a0; background: #64b98521; }
+    .answer-button.incorrect { border-color: #df665c99; background: #df665c1b; }
+    .feedback { min-height: 22px; margin: 12px 0 0; font-size: 12px; font-weight: 750; }
+    .feedback.good { color: #91d6a8; }
+    .feedback.bad { color: #f09488; }
+    .modal-actions { justify-content: flex-end; gap: 9px; margin-top: 16px; }
+
+    .toast {
+      position: fixed;
+      z-index: 6;
+      right: 22px;
+      bottom: 22px;
+      max-width: min(380px, calc(100vw - 44px));
+      padding: 11px 15px;
+      border: 1px solid #ffffff20;
+      border-radius: 10px;
+      background: #2a382f;
+      color: var(--ink);
+      box-shadow: 0 12px 32px #0006;
+      font-size: 12px;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(8px);
+      transition: opacity .2s ease, transform .2s ease;
+    }
+    .toast.show { opacity: 1; transform: translateY(0); }
+
+    @media (max-width: 960px) {
+      .game-layout { grid-template-columns: minmax(0, 1fr) 285px; gap: 14px; }
+      .sidebar { gap: 11px; }
+      .side-card { padding: 14px; }
+    }
+    @media (max-width: 740px) {
+      .intro { align-items: start; flex-direction: column; }
+      .intro-copy { max-width: 570px; }
+      .game-layout { grid-template-columns: 1fr; }
+      .sidebar { grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; }
+      .side-card:last-child { grid-column: 1 / -1; }
+    }
+    @media (max-width: 520px) {
+      .shell { padding: 12px 12px 20px; }
+      .topbar { padding-bottom: 14px; }
+      .brand-mark { width: 38px; height: 38px; border-radius: 11px; }
+      .brand-caption { font-size: 9px; }
+      .top-actions .button { padding: 0 10px; }
+      .intro { padding: 20px 0 15px; }
+      .settings { width: 100%; flex-wrap: wrap; }
+      .setting { flex: 1; }
+      .setting select { width: 100%; min-width: 0; }
+      .settings .button { flex: 1 0 100%; }
+      .sidebar { grid-template-columns: 1fr; }
+      .side-card:last-child { grid-column: auto; }
+      .footer { align-items: start; flex-direction: column; gap: 4px; }
+      .board-legend { gap: 7px 12px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header class="topbar">
+      <div class="brand" aria-label="EduLudo classroom showcase">
+        <div class="brand-mark" aria-hidden="true">E</div>
+        <div>
+          <div class="brand-name">EduLudo</div>
+          <div class="brand-caption">Classroom showcase</div>
+        </div>
+      </div>
+      <div class="top-actions">
+        <button class="button button-quiet button-small" id="rulesButton" type="button">How to play</button>
+        <button class="button button-quiet button-small" id="fullscreenButton" type="button" aria-label="Toggle fullscreen">⛶ &nbsp;Present</button>
+      </div>
+    </header>
+
+    <section class="intro" aria-labelledby="pageTitle">
+      <div>
+        <p class="eyebrow">Learn. Roll. Move.</p>
+        <h1 id="pageTitle">A little strategy goes a long way.</h1>
+      </div>
+      <p class="intro-copy">A classroom-ready, offline demo of EduLudo: classic Ludo turns meet quick questions about software engineering.</p>
+    </section>
+
+    <div class="settings" aria-label="Game settings">
+      <label class="setting">Players
+        <select id="playerCount" aria-label="Number of players">
+          <option value="2">2 players</option>
+          <option value="3">3 players</option>
+          <option value="4" selected>4 players</option>
+        </select>
+      </label>
+      <label class="setting">Level
+        <select id="difficulty" aria-label="Quiz difficulty">
+          <option value="easy">Easy quiz</option>
+          <option value="medium" selected>Medium quiz</option>
+          <option value="hard">Hard quiz</option>
+        </select>
+      </label>
+      <button class="button button-primary" id="newGameButton" type="button">↻ &nbsp;New game</button>
+    </div>
+
+    <section class="game-layout" aria-label="EduLudo game">
+      <div class="board-card">
+        <div class="section-heading">
+          <h2>Game board</h2>
+          <span class="board-tag" id="levelTag">Medium · pass &amp; play</span>
+        </div>
+        <div class="board-frame">
+          <canvas id="board" width="720" height="720" tabindex="0" role="img" aria-label="Ludo board. Roll the dice, then select a highlighted piece."></canvas>
+        </div>
+        <div class="board-legend" aria-label="Board symbols">
+          <span class="legend-item"><span class="legend-symbol legend-question">?</span> Course question</span>
+          <span class="legend-item"><span class="legend-symbol legend-safe">✦</span> Safe square</span>
+          <span class="legend-item"><span class="legend-symbol legend-surprise">!</span> Surprise</span>
+          <span class="legend-item"><span class="legend-symbol legend-start">#</span> Start</span>
+        </div>
+      </div>
+
+      <aside class="sidebar" aria-label="Game information">
+        <section class="side-card" aria-labelledby="turnTitle">
+          <div class="turn-heading">
+            <h2 id="turnTitle">Current turn</h2>
+            <span class="turn-status" id="turnStatus">Your move</span>
+          </div>
+          <div class="current-player" id="currentPlayer"></div>
+          <div class="dice-row" aria-label="Dice result">
+            <div class="die die-placeholder" id="dieOne" aria-label="Normal die">·</div>
+            <div class="die die-placeholder" id="dieTwo" aria-label="Multiplier die">·</div>
+            <div class="roll-summary"><span id="rollDescription">Ready when you are</span><strong id="stepsDescription">Roll to begin</strong></div>
+          </div>
+          <button class="button button-primary" id="rollButton" type="button">⚄ &nbsp;Roll dice</button>
+          <p class="instruction" id="instruction" aria-live="polite">A six gets a piece out of its castle.</p>
+        </section>
+
+        <section class="side-card" aria-labelledby="playersTitle">
+          <div class="player-heading">
+            <h2 id="playersTitle">Players</h2>
+          </div>
+          <div class="player-list" id="playerList"></div>
+        </section>
+
+        <section class="side-card" aria-labelledby="activityTitle">
+          <div class="event-heading">
+            <h2 id="activityTitle">On the board</h2>
+            <span id="turnCounter">Turn 1</span>
+          </div>
+          <ol class="event-log" id="eventLog" aria-live="polite" aria-relevant="additions"></ol>
+        </section>
+      </aside>
+    </section>
+
+    <footer class="footer">
+      <span><strong>EduLudo</strong> · a software engineering course game</span>
+      <span>Standalone presentation edition · no downloads or internet needed</span>
+    </footer>
+  </main>
+
+  <div class="modal-backdrop" id="quizModal" hidden>
+    <section class="modal" role="dialog" aria-modal="true" aria-labelledby="quizTitle" aria-describedby="quizQuestion">
+      <p class="eyebrow" id="quizEyebrow">Course checkpoint</p>
+      <h2 id="quizTitle">Quick question</h2>
+      <p class="modal-copy" id="quizQuestion"></p>
+      <ol class="answer-list" id="answerList"></ol>
+      <p class="feedback" id="quizFeedback" aria-live="polite"></p>
+      <div class="modal-actions">
+        <button class="button button-primary" id="continueButton" type="button" hidden>Continue turn</button>
+      </div>
+    </section>
+  </div>
+
+  <div class="modal-backdrop" id="infoModal" hidden>
+    <section class="modal" role="dialog" aria-modal="true" aria-labelledby="infoTitle">
+      <p class="eyebrow">EduLudo quick guide</p>
+      <h2 id="infoTitle">How to play</h2>
+      <p class="modal-copy">Roll the dice, then click one of your glowing pieces. A piece leaves its castle only on a six. Land on a single opponent to send it home; a safe square protects its pieces. Reach the finish with an exact roll.</p>
+      <ul class="modal-copy">
+        <li><strong>?</strong> Answer a software engineering question. Correct answers move forward; incorrect answers move back.</li>
+        <li><strong>!</strong> Trigger a surprise: a jump, a setback, or an extra roll.</li>
+        <li>A six earns another roll. Three sixes in a row cancel the third roll.</li>
+        <li>Two same-colour pieces together make a block opponents cannot cross.</li>
+      </ul>
+      <div class="modal-actions"><button class="button button-primary" id="closeInfoButton" type="button">Got it</button></div>
+    </section>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    "use strict";
+
+    const COLORS = [
+      { name: "Red", value: "#df665c", dark: "#a83d39", light: "#f5cfca" },
+      { name: "Green", value: "#64b985", dark: "#348355", light: "#d1ead8" },
+      { name: "Yellow", value: "#f0c84f", dark: "#b28a1f", light: "#f8eab2" },
+      { name: "Blue", value: "#629bdb", dark: "#376fae", light: "#d1e2f5" }
+    ];
+
+    const QUIZZES = {
+      easy: [
+        { topic: "Agile", level: "Easy", steps: 1, question: "Which document defines the four values and twelve principles of Agile software development?", options: ["The Agile Manifesto", "ISO 9001", "The Waterfall model", "The UML specification"], answer: 0 },
+        { topic: "Scrum", level: "Easy", steps: 1, question: "Who is responsible for maximizing product value and managing the Product Backlog?", options: ["The Scrum Master", "The Product Owner", "The Developers", "The stakeholders"], answer: 1 },
+        { topic: "MVC", level: "Easy", steps: 1, question: "In MVC, which component holds the data and business logic?", options: ["The View", "The Controller", "The Model", "The Router"], answer: 2 },
+        { topic: "Version control", level: "Easy", steps: 1, question: "Which Git command records staged changes as a new snapshot?", options: ["git push", "git commit", "git clone", "git status"], answer: 1 },
+        { topic: "Quality assurance", level: "Easy", steps: 1, question: "What is a unit test?", options: ["A test performed by end users", "A load test of the whole system", "A review of requirements", "A test of one small unit in isolation"], answer: 3 }
+      ],
+      medium: [
+        { topic: "Design patterns", level: "Medium", steps: 2, question: "Which pattern defines a one-to-many dependency so dependents are notified when an object changes?", options: ["Strategy", "Observer", "Decorator", "Facade"], answer: 1 },
+        { topic: "Software design", level: "Medium", steps: 2, question: "What does the 'S' in SOLID stand for?", options: ["Substitution Principle", "Separation of Layers", "Static Typing Principle", "Single Responsibility Principle"], answer: 3 },
+        { topic: "Quality assurance", level: "Medium", steps: 2, question: "Why do teams perform regression testing?", options: ["To check new changes did not break existing functionality", "To measure system speed", "To test a system for the first time", "To check spelling"], answer: 0 },
+        { topic: "Scrum", level: "Medium", steps: 2, question: "What is the purpose of a Sprint Retrospective?", options: ["Present the increment", "Estimate the Product Backlog", "Inspect the last Sprint and plan improvements", "Write release notes"], answer: 2 },
+        { topic: "MVC", level: "Medium", steps: 2, question: "What is the main role of the Controller in MVC?", options: ["Handle input, update the Model and choose a View", "Store data permanently", "Draw the screen", "Compile the code"], answer: 0 }
+      ],
+      hard: [
+        { topic: "Design patterns", level: "Hard", steps: 3, question: "Which pattern converts an existing interface into one that clients expect?", options: ["Adapter", "Bridge", "Proxy", "Facade"], answer: 0 },
+        { topic: "Design patterns", level: "Hard", steps: 3, question: "Which pattern supports undo and redo by representing an action as an object?", options: ["Observer", "Command", "Singleton", "Prototype"], answer: 1 },
+        { topic: "Software design", level: "Hard", steps: 3, question: "What does the Liskov Substitution Principle require?", options: ["Subtypes should be usable wherever their base types are expected", "Every class must have one method", "Objects must have one global instance", "A type must never be extended"], answer: 0 },
+        { topic: "Quality assurance", level: "Hard", steps: 3, question: "What is the goal of mutation testing?", options: ["Measure application speed", "Generate UI screenshots", "Check whether tests detect small intentional code changes", "Replace integration testing"], answer: 2 }
+      ]
+    };
+
+    const SPECIAL_CONFIG = {
+      easy: { safe: 4, questions: 5, surprises: 2 },
+      medium: { safe: 5, questions: 7, surprises: 3 },
+      hard: { safe: 6, questions: 8, surprises: 4 }
+    };
+
+    const CASTLE_SLOTS = [[1.8, 1.8], [4.2, 1.8], [1.8, 4.2], [4.2, 4.2]];
+    const LOOP = buildLoop();
+    const HOME = Array.from({ length: 6 }, (_, i) => [7, i + 1]);
+    const BASE_PATH = [LOOP[51], ...LOOP.slice(0, 51), ...HOME];
+    const canvas = document.getElementById("board");
+    const ctx = canvas.getContext("2d");
+    const elements = {
+      playerCount: document.getElementById("playerCount"),
+      difficulty: document.getElementById("difficulty"),
+      levelTag: document.getElementById("levelTag"),
+      currentPlayer: document.getElementById("currentPlayer"),
+      playerList: document.getElementById("playerList"),
+      turnStatus: document.getElementById("turnStatus"),
+      rollButton: document.getElementById("rollButton"),
+      instruction: document.getElementById("instruction"),
+      dieOne: document.getElementById("dieOne"),
+      dieTwo: document.getElementById("dieTwo"),
+      rollDescription: document.getElementById("rollDescription"),
+      stepsDescription: document.getElementById("stepsDescription"),
+      turnCounter: document.getElementById("turnCounter"),
+      eventLog: document.getElementById("eventLog"),
+      quizModal: document.getElementById("quizModal"),
+      quizEyebrow: document.getElementById("quizEyebrow"),
+      quizQuestion: document.getElementById("quizQuestion"),
+      answerList: document.getElementById("answerList"),
+      quizFeedback: document.getElementById("quizFeedback"),
+      continueButton: document.getElementById("continueButton"),
+      infoModal: document.getElementById("infoModal"),
+      toast: document.getElementById("toast")
+    };
+
+    let game;
+    let toastTimer;
+    let resizeFrame;
+
+    function buildLoop() {
+      const path = [];
+      for (let col = 1; col <= 5; col++) path.push([6, col]);
+      for (let row = 5; row >= 0; row--) path.push([row, 6]);
+      path.push([0, 7]);
+      for (let row = 0; row <= 5; row++) path.push([row, 8]);
+      for (let col = 9; col <= 14; col++) path.push([6, col]);
+      path.push([7, 14]);
+      for (let col = 14; col >= 9; col--) path.push([8, col]);
+      for (let row = 9; row <= 14; row++) path.push([row, 8]);
+      path.push([14, 7]);
+      for (let row = 14; row >= 9; row--) path.push([row, 6]);
+      for (let col = 5; col >= 0; col--) path.push([8, col]);
+      path.push([7, 0], [6, 0]);
+      return path;
+    }
+
+    function rotate([row, col], turns) {
+      let r = row;
+      let c = col;
+      for (let i = 0; i < turns; i++) [r, c] = [c, 14 - r];
+      return [r, c];
+    }
+
+    function keyOf([row, col]) { return `${row},${col}`; }
+    function randomInt(max) { return Math.floor(Math.random() * max); }
+    function shuffle(list) {
+      const result = [...list];
+      for (let i = result.length - 1; i > 0; i--) {
+        const j = randomInt(i + 1);
+        [result[i], result[j]] = [result[j], result[i]];
+      }
+      return result;
+    }
+
+    function newGame() {
+      const count = Number(elements.playerCount.value);
+      const difficulty = elements.difficulty.value;
+      game = {
+        difficulty,
+        players: COLORS.slice(0, count).map((color, i) => ({
+          ...color,
+          name: `${color.name} team`,
+          pieces: Array(4).fill(-1),
+          skipNextTurn: false
+        })),
+        current: 0,
+        turn: 1,
+        sixes: 0,
+        extraTurn: false,
+        bonusPending: false,
+        bonusActive: false,
+        phase: "roll",
+        options: [],
+        featureMap: makeFeatures(difficulty),
+        finishOrder: [],
+        lastRoll: null
+      };
+      elements.quizModal.hidden = true;
+      elements.levelTag.textContent = `${titleCase(difficulty)} · pass & play`;
+      elements.eventLog.replaceChildren();
+      elements.dieOne.textContent = "·";
+      elements.dieTwo.textContent = "·";
+      elements.dieOne.classList.add("die-placeholder");
+      elements.dieTwo.classList.add("die-placeholder");
+      elements.rollDescription.textContent = "Ready when you are";
+      elements.stepsDescription.textContent = "Roll to begin";
+      addEvent(`New ${difficulty} quiz game started with ${count} players.`);
+      update();
+      elements.instruction.textContent = "A six gets a piece out of its castle.";
+    }
+
+    function makeFeatures(difficulty) {
+      const config = SPECIAL_CONFIG[difficulty];
+      const occupied = new Set([0, 13, 26, 39].map(i => keyOf(LOOP[i])));
+      const candidates = shuffle(LOOP.map(keyOf).filter(key => !occupied.has(key)));
+      const features = new Map();
+      let cursor = 0;
+      for (let i = 0; i < config.safe; i++) features.set(candidates[cursor++], { type: "safe" });
+      for (let i = 0; i < config.questions; i++) {
+        const pool = QUIZZES[difficulty];
+        const quiz = pool[i % pool.length];
+        features.set(candidates[cursor++], { type: "question", level: quiz.level });
+      }
+      for (let i = 0; i < config.surprises; i++) features.set(candidates[cursor++], { type: "surprise" });
+      return features;
+    }
+
+    function titleCase(value) { return value[0].toUpperCase() + value.slice(1); }
+
+    function currentPlayer() { return game.players[game.current]; }
+
+    function playerPath(playerIndex) {
+      return BASE_PATH.map(cell => rotate(cell, playerIndex));
+    }
+
+    function playerAt(index, pieceIndex) {
+      return game.players[index].pieces[pieceIndex];
+    }
+
+    function coordAt(playerIndex, position) {
+      return playerPath(playerIndex)[position];
+    }
+
+    function blockCountAt(cell, moverIndex) {
+      const key = keyOf(cell);
+      return game.players.reduce((sum, player, index) => {
+        if (index === moverIndex) return sum;
+        const path = playerPath(index);
+        return sum + player.pieces.filter(position => position >= 0 && position < 58 && keyOf(path[position]) === key).length;
+      }, 0);
+    }
+
+    function getLegalOptions(playerIndex, steps, normalDie) {
+      const player = game.players[playerIndex];
+      const path = playerPath(playerIndex);
+      const options = [];
+      player.pieces.forEach((position, pieceIndex) => {
+        if (position === 58) return;
+        if (position < 0) {
+          if (normalDie === 6 && blockCountAt(path[0], playerIndex) < 2) options.push({ pieceIndex, enter: true, target: 0 });
+          return;
+        }
+        if (steps <= 0) return;
+        const target = position + steps;
+        if (target > 57) return;
+        let blocked = false;
+        for (let step = position + 1; step <= target; step++) {
+          if (blockCountAt(path[step], playerIndex) >= 2) { blocked = true; break; }
+        }
+        if (!blocked) options.push({ pieceIndex, enter: false, target });
+      });
+      return options;
+    }
+
+    function rollDice() {
+      if (game.phase !== "roll") return;
+      const player = currentPlayer();
+      if (player.skipNextTurn) {
+        player.skipNextTurn = false;
+        addEvent(`${player.name} loses this turn.`);
+        advancePlayer();
+        return;
+      }
+
+      const normal = randomInt(6) + 1;
+      let multiplierFace = 0;
+      let multiplierName = "";
+      let steps = normal;
+      if (game.bonusActive) {
+        multiplierFace = randomInt(6) + 1;
+        multiplierName = "UltraBoost";
+        steps = normal * (multiplierFace - 1);
+      } else if (game.difficulty === "medium") {
+        multiplierFace = randomInt(3) + 1;
+        multiplierName = "Boost";
+        steps = normal * (multiplierFace - 1);
+      } else if (game.difficulty === "hard") {
+        multiplierFace = randomInt(6) + 1;
+        multiplierName = "UltraBoost";
+        steps = normal * (multiplierFace - 1);
+      }
+
+      if (!game.bonusActive) {
+        if (normal === 6) {
+          game.sixes++;
+          if (game.sixes === 3) {
+            addEvent(`${player.name} rolled three sixes. The third roll is cancelled.`);
+            game.lastRoll = { normal, multiplierFace, multiplierName, steps };
+            displayDice(game.lastRoll);
+            advancePlayer();
+            return;
+          }
+          game.extraTurn = true;
+        } else {
+          game.sixes = 0;
+          game.extraTurn = false;
+        }
+      }
+
+      game.bonusActive = false;
+      game.lastRoll = { normal, multiplierFace, multiplierName, steps };
+      game.options = getLegalOptions(game.current, steps, normal);
+      displayDice(game.lastRoll);
+      addEvent(`${player.name} rolled ${normal}${multiplierFace ? ` × ${multiplierName} ${multiplierFace}` : ""} (${steps} steps).`);
+
+      if (!game.options.length) {
+        addEvent("No legal moves this roll.");
+        finishAction();
+        return;
+      }
+      game.phase = "move";
+      update();
+      elements.instruction.textContent = "Select one of your glowing pieces on the board.";
+      canvas.focus({ preventScroll: true });
+    }
+
+    function displayDice(roll) {
+      elements.dieOne.textContent = String(roll.normal);
+      elements.dieOne.classList.remove("die-placeholder");
+      elements.dieTwo.textContent = roll.multiplierFace ? String(roll.multiplierFace) : "·";
+      elements.dieTwo.classList.toggle("die-placeholder", !roll.multiplierFace);
+      elements.rollDescription.textContent = roll.multiplierFace ? `${roll.normal} × ${roll.multiplierName}` : `${roll.normal} on the die`;
+      elements.stepsDescription.textContent = `${roll.steps} ${roll.steps === 1 ? "step" : "steps"}`;
+    }
+
+    function choosePiece(pieceIndex) {
+      if (game.phase !== "move") return;
+      const option = game.options.find(candidate => candidate.pieceIndex === pieceIndex);
+      if (!option) {
+        showToast("Choose one of the highlighted pieces.");
+        return;
+      }
+      const playerIndex = game.current;
+      const player = currentPlayer();
+      const oldPosition = player.pieces[pieceIndex];
+      player.pieces[pieceIndex] = option.target;
+      game.options = [];
+      game.phase = "resolving";
+      addEvent(option.enter
+        ? `${player.name}'s piece ${pieceIndex + 1} enters the board.`
+        : `${player.name}'s piece ${pieceIndex + 1} moves ${game.lastRoll.steps} squares.`);
+
+      if (!option.enter) captureAt(playerIndex, pieceIndex);
+      if (player.pieces[pieceIndex] === 57) {
+        player.pieces[pieceIndex] = 58;
+        addEvent(`${player.name}'s piece reached the finish!`);
+      }
+      update();
+      if (option.enter) {
+        finishAction();
+        return;
+      }
+      resolveLanding(playerIndex, pieceIndex, oldPosition);
+    }
+
+    function isProtected(cell) {
+      const key = keyOf(cell);
+      return game.featureMap.get(key)?.type === "safe"
+        || game.players.some((_, i) => keyOf(playerPath(i)[0]) === key);
+    }
+
+    function captureAt(playerIndex, pieceIndex) {
+      const mover = game.players[playerIndex];
+      const position = mover.pieces[pieceIndex];
+      if (position < 0 || position >= 58) return;
+      const cell = coordAt(playerIndex, position);
+      if (isProtected(cell)) return;
+      let captured = 0;
+      game.players.forEach((opponent, opponentIndex) => {
+        if (opponentIndex === playerIndex) return;
+        const opponentPath = playerPath(opponentIndex);
+        opponent.pieces.forEach((opponentPosition, opponentPieceIndex) => {
+          if (opponentPosition >= 0 && opponentPosition < 58 && keyOf(opponentPath[opponentPosition]) === keyOf(cell)) {
+            const count = opponent.pieces.filter(p => p >= 0 && p < 58 && keyOf(opponentPath[p]) === keyOf(cell)).length;
+            if (count === 1) {
+              opponent.pieces[opponentPieceIndex] = -1;
+              captured++;
+            }
+          }
+        });
+      });
+      if (captured) addEvent(`${mover.name} captured ${captured} opponent piece${captured > 1 ? "s" : ""}.`);
+    }
+
+    function resolveLanding(playerIndex, pieceIndex) {
+      const position = game.players[playerIndex].pieces[pieceIndex];
+      if (position < 0 || position >= 58) {
+        finishAction();
+        return;
+      }
+      const feature = game.featureMap.get(keyOf(coordAt(playerIndex, position)));
+      if (!feature) {
+        finishAction();
+        return;
+      }
+      if (feature.type === "question") {
+        askQuestion(feature.level, playerIndex, pieceIndex);
+      } else if (feature.type === "surprise") {
+        resolveSurprise(playerIndex, pieceIndex);
+      } else {
+        addEvent(`${game.players[playerIndex].name} landed on a safe square.`);
+        finishAction();
+      }
+    }
+
+    function askQuestion(level, playerIndex, pieceIndex) {
+      const pool = QUIZZES[level.toLowerCase()];
+      const quiz = pool[randomInt(pool.length)];
+      elements.quizEyebrow.textContent = `${quiz.topic} · ${quiz.level} checkpoint`;
+      elements.quizQuestion.textContent = quiz.question;
+      elements.quizFeedback.textContent = "";
+      elements.quizFeedback.className = "feedback";
+      elements.continueButton.hidden = true;
+      elements.answerList.replaceChildren();
+      quiz.options.forEach((answer, answerIndex) => {
+        const item = document.createElement("li");
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "answer-button";
+        button.textContent = `${String.fromCharCode(65 + answerIndex)}. ${answer}`;
+        button.addEventListener("click", () => submitAnswer(button, answerIndex, quiz, playerIndex, pieceIndex), { once: true });
+        item.append(button);
+        elements.answerList.append(item);
+      });
+      game.phase = "question";
+      elements.quizModal.hidden = false;
+      elements.answerList.querySelector("button")?.focus();
+    }
+
+    function submitAnswer(selectedButton, answerIndex, quiz, playerIndex, pieceIndex) {
+      const buttons = [...elements.answerList.querySelectorAll("button")];
+      buttons.forEach((button, index) => {
+        button.disabled = true;
+        if (index === quiz.answer) button.classList.add("correct");
+      });
+      const isCorrect = answerIndex === quiz.answer;
+      if (!isCorrect) selectedButton.classList.add("incorrect");
+      const player = game.players[playerIndex];
+      const position = player.pieces[pieceIndex];
+      const delta = isCorrect ? quiz.steps : -quiz.steps;
+      let moved = 0;
+      if (position >= 0 && position < 58) {
+        const path = playerPath(playerIndex);
+        while (moved < quiz.steps) {
+          const target = player.pieces[pieceIndex] + (isCorrect ? 1 : -1);
+          if (target < 0 || target > 57) break;
+          if (isCorrect && blockCountAt(path[target], playerIndex) >= 2) break;
+          player.pieces[pieceIndex] = target;
+          moved++;
+        }
+        if (player.pieces[pieceIndex] === 57) player.pieces[pieceIndex] = 58;
+      }
+      elements.quizFeedback.textContent = isCorrect
+        ? `Correct! Your piece moves ${moved} square${moved === 1 ? "" : "s"} forward.`
+        : `Not quite — the answer is “${quiz.options[quiz.answer]}”. Your piece moves ${moved} square${moved === 1 ? "" : "s"} back.`;
+      elements.quizFeedback.classList.add(isCorrect ? "good" : "bad");
+      addEvent(`${player.name} answered ${isCorrect ? "correctly" : "incorrectly"} and moved ${moved} ${isCorrect ? "forward" : "back"}.`);
+      if (delta > 0 && moved === 0) elements.quizFeedback.textContent += " The path ahead is blocked.";
+      elements.continueButton.hidden = false;
+      elements.continueButton.focus();
+      update();
+    }
+
+    function resolveSurprise(playerIndex, pieceIndex) {
+      const player = game.players[playerIndex];
+      const piece = player.pieces[pieceIndex];
+      const choices = [
+        { weight: 10, effect: "rocket" },
+        { weight: 10, effect: "sabotage" },
+        { weight: 10, effect: "castle" },
+        { weight: 30, effect: "back" },
+        { weight: 30, effect: "skip" },
+        { weight: 10, effect: "bonus" }
+      ];
+      let roll = randomInt(100);
+      const surprise = choices.find(choice => (roll -= choice.weight) < 0)?.effect ?? "back";
+      switch (surprise) {
+        case "rocket":
+          player.pieces[pieceIndex] = 58;
+          addEvent(`Rocket! ${player.name}'s piece jumps to the finish.`);
+          break;
+        case "sabotage": {
+          const candidates = [];
+          game.players.forEach((opponent, opponentIndex) => {
+            if (opponentIndex === playerIndex) return;
+            opponent.pieces.forEach((position, opponentPieceIndex) => {
+              if (position > 0 && position < 58) candidates.push({ opponent, opponentIndex, opponentPieceIndex });
+            });
+          });
+          if (candidates.length) {
+            const target = candidates[randomInt(candidates.length)];
+            const back = Math.floor((randomInt(6) + 1) / 2);
+            target.opponent.pieces[target.opponentPieceIndex] = Math.max(0, target.opponent.pieces[target.opponentPieceIndex] - back);
+            addEvent(`Sabotage! An opponent piece moves back ${back}.`);
+          } else {
+            addEvent("Sabotage! No opponent piece can be moved.");
+          }
+          break;
+        }
+        case "castle":
+          player.pieces[pieceIndex] = -1;
+          addEvent(`Oops! ${player.name}'s piece returns to its castle.`);
+          break;
+        case "back":
+          player.pieces[pieceIndex] = Math.max(0, piece - 3);
+          addEvent(`Slip! ${player.name}'s piece moves back up to three squares.`);
+          break;
+        case "skip":
+          player.skipNextTurn = true;
+          addEvent(`Sleepy! ${player.name} loses its next turn.`);
+          break;
+        case "bonus":
+          game.bonusPending = true;
+          addEvent(`Jackpot! ${player.name} earns a bonus UltraBoost roll.`);
+          break;
+      }
+      if (player.pieces[pieceIndex] === 57) player.pieces[pieceIndex] = 58;
+      update();
+      finishAction();
+    }
+
+    function finishAction() {
+      if (game.players.filter(player => player.pieces.filter(position => position === 58).length < 4).length <= 1) {
+        const order = [...game.players].sort((a, b) => b.pieces.filter(p => p === 58).length - a.pieces.filter(p => p === 58).length);
+        addEvent(`Game over! ${order[0].name} takes the lead.`);
+        game.phase = "over";
+        update();
+        elements.instruction.textContent = "Start a new game whenever you are ready.";
+        return;
+      }
+      if (game.players[game.current].pieces.every(position => position === 58)) {
+        advancePlayer();
+        return;
+      }
+      if (game.bonusPending) {
+        game.bonusPending = false;
+        game.bonusActive = true;
+        game.phase = "roll";
+        game.turn++;
+        update();
+        elements.instruction.textContent = "Bonus roll! Roll the UltraBoost dice.";
+        return;
+      }
+      if (game.extraTurn) {
+        game.extraTurn = false;
+        game.phase = "roll";
+        game.turn++;
+        update();
+        elements.instruction.textContent = "A six earns you another roll.";
+        return;
+      }
+      advancePlayer();
+    }
+
+    function advancePlayer() {
+      const previous = game.current;
+      game.sixes = 0;
+      game.extraTurn = false;
+      game.bonusPending = false;
+      game.bonusActive = false;
+      for (let attempts = 0; attempts < game.players.length; attempts++) {
+        game.current = (game.current + 1) % game.players.length;
+        const player = game.players[game.current];
+        if (player.pieces.every(position => position === 58)) continue;
+        if (player.skipNextTurn) {
+          player.skipNextTurn = false;
+          addEvent(`${player.name} loses this turn.`);
+          continue;
+        }
+        break;
+      }
+      game.phase = "roll";
+      game.turn++;
+      if (previous !== game.current) addEvent(`It's ${currentPlayer().name}'s turn.`);
+      update();
+      elements.instruction.textContent = `${currentPlayer().name}, roll the dice to begin.`;
+    }
+
+    function displayName(player) { return player.name; }
+
+    function update() {
+      if (!game) return;
+      const player = currentPlayer();
+      const colorIndex = game.current;
+      elements.currentPlayer.innerHTML = "";
+      const avatar = document.createElement("div");
+      avatar.className = "player-avatar";
+      avatar.style.background = `linear-gradient(145deg, ${player.value}, ${player.dark})`;
+      avatar.textContent = "♟";
+      avatar.setAttribute("aria-hidden", "true");
+      const labels = document.createElement("div");
+      const name = document.createElement("div");
+      name.className = "current-name";
+      name.textContent = displayName(player);
+      const subtitle = document.createElement("div");
+      subtitle.className = "current-subtitle";
+      subtitle.textContent = `${player.name.split(" ")[0]} · ${game.bonusActive ? "Bonus roll" : titleCase(game.difficulty) + " quiz"}`;
+      labels.append(name, subtitle);
+      elements.currentPlayer.append(avatar, labels);
+
+      elements.turnStatus.textContent = game.phase === "move" ? "Select piece" : game.phase === "over" ? "Game over" : "Your move";
+      elements.rollButton.disabled = game.phase !== "roll";
+      elements.rollButton.innerHTML = game.bonusActive ? "⚄ &nbsp;Bonus roll" : "⚄ &nbsp;Roll dice";
+      elements.instruction.textContent = game.phase === "move"
+        ? "Select one of your glowing pieces on the board."
+        : game.phase === "over"
+          ? "Start a new game whenever you are ready."
+          : game.phase === "roll" && game.turn > 1 ? `${player.name}, roll the dice to begin.` : elements.instruction.textContent;
+
+      elements.playerList.replaceChildren();
+      game.players.forEach((entry, index) => {
+        const row = document.createElement("div");
+        row.className = `player-row${index === colorIndex ? " active" : ""}${entry.pieces.every(position => position === 58) ? " finished" : ""}`;
+        const dot = document.createElement("span");
+        dot.className = "player-dot";
+        dot.style.background = entry.value;
+        const name = document.createElement("span");
+        name.className = "player-row-name";
+        name.textContent = entry.name;
+        const score = document.createElement("span");
+        score.className = "player-row-score";
+        const finished = entry.pieces.filter(position => position === 58).length;
+        score.textContent = `${finished}/4 home`;
+        row.append(dot, name, score);
+        elements.playerList.append(row);
+      });
+      elements.turnCounter.textContent = `Turn ${game.turn}`;
+      drawBoard();
+    }
+
+    function addEvent(message) {
+      const item = document.createElement("li");
+      const time = document.createElement("time");
+      time.textContent = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+      item.append(time, document.createTextNode(message));
+      elements.eventLog.prepend(item);
+      while (elements.eventLog.children.length > 12) elements.eventLog.lastElementChild.remove();
+    }
+
+    function cellRect(row, col) {
+      const inset = 0.045;
+      return [col + inset, row + inset, 1 - inset * 2, 1 - inset * 2];
+    }
+
+    function fillCell(row, col, fill, stroke = "#b5a789") {
+      const [x, y, w, h] = cellRect(row, col);
+      ctx.fillStyle = fill;
+      ctx.fillRect(x, y, w, h);
+      ctx.strokeStyle = stroke;
+      ctx.lineWidth = .035;
+      ctx.strokeRect(x, y, w, h);
+    }
+
+    function drawBoard() {
+      if (!game) return;
+      ctx.clearRect(0, 0, 15, 15);
+      ctx.fillStyle = "#e9dec7";
+      ctx.fillRect(0, 0, 15, 15);
+      ctx.fillStyle = "#d8c8a7";
+      ctx.fillRect(0.1, 0.1, 14.8, 14.8);
+
+      const castleOrigins = [[0, 0], [0, 9], [9, 9], [9, 0]];
+      game.players.forEach((player, index) => {
+        const [row, col] = castleOrigins[index];
+        ctx.fillStyle = player.light;
+        ctx.fillRect(col + .1, row + .1, 5.8, 5.8);
+        ctx.strokeStyle = player.value;
+        ctx.lineWidth = .09;
+        ctx.strokeRect(col + .35, row + .35, 5.3, 5.3);
+        ctx.fillStyle = player.value + "25";
+        ctx.fillRect(col + 1, row + 1, 4, 4);
+        ctx.strokeStyle = player.value + "99";
+        ctx.lineWidth = .035;
+        ctx.strokeRect(col + 1, row + 1, 4, 4);
+        ctx.fillStyle = player.dark;
+        ctx.font = "700 .3px system-ui, sans-serif";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(player.name.toUpperCase(), col + 3, row + .68);
+      });
+
+      const loopCells = new Set(LOOP.map(keyOf));
+      for (let row = 0; row < 15; row++) {
+        for (let col = 0; col < 15; col++) {
+          const key = `${row},${col}`;
+          if (loopCells.has(key)) fillCell(row, col, "#fbf7ed", "#b9ad97");
+        }
+      }
+
+      game.players.forEach((player, index) => {
+        const path = playerPath(index);
+        for (let i = 52; i < 58; i++) {
+          const [row, col] = path[i];
+          fillCell(row, col, player.light, player.value);
+        }
+      });
+
+      for (const [key, feature] of game.featureMap) {
+        const [row, col] = key.split(",").map(Number);
+        let fill = "#fff";
+        let symbol = "";
+        let color = "#344238";
+        if (feature.type === "safe") { fill = "#dfc990"; symbol = "✦"; color = "#80662b"; }
+        if (feature.type === "question") { fill = "#8579c0"; symbol = "?"; color = "#fff"; }
+        if (feature.type === "surprise") { fill = "#d78b5e"; symbol = "!"; color = "#fff"; }
+        fillCell(row, col, fill, "#a39479");
+        ctx.fillStyle = color;
+        ctx.font = "800 .58px system-ui, sans-serif";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(symbol, col + .5, row + .52);
+      }
+
+      game.players.forEach((player, index) => {
+        const [row, col] = playerPath(index)[0];
+        fillCell(row, col, player.light, player.value);
+        ctx.fillStyle = player.dark;
+        ctx.font = "900 .42px system-ui, sans-serif";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText("#", col + .5, row + .52);
+      });
+
+      drawGoal();
+      drawCastlePieces();
+      drawActivePieces();
+    }
+
+    function drawGoal() {
+      const triangles = [
+        { color: COLORS[0].value, points: [[6, 6], [7.5, 7.5], [6, 9]] },
+        { color: COLORS[1].value, points: [[6, 6], [9, 6], [7.5, 7.5]] },
+        { color: COLORS[2].value, points: [[9, 6], [9, 9], [7.5, 7.5]] },
+        { color: COLORS[3].value, points: [[6, 9], [7.5, 7.5], [9, 9]] }
+      ];
+      triangles.forEach(triangle => {
+        ctx.beginPath();
+        triangle.points.forEach(([x, y], i) => i ? ctx.lineTo(x, y) : ctx.moveTo(x, y));
+        ctx.closePath();
+        ctx.fillStyle = triangle.color;
+        ctx.fill();
+      });
+      ctx.beginPath();
+      ctx.arc(7.5, 7.5, .43, 0, Math.PI * 2);
+      ctx.fillStyle = "#fbf7ed";
+      ctx.fill();
+      ctx.strokeStyle = "#a39479";
+      ctx.lineWidth = .05;
+      ctx.stroke();
+      ctx.fillStyle = "#766744";
+      ctx.font = "900 .34px system-ui, sans-serif";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText("GO", 7.5, 7.5);
+    }
+
+    function castleCenter(index) {
+      const centers = [[3, 3], [3, 12], [12, 12], [12, 3]];
+      return centers[index];
+    }
+
+    function castleSlot(index, pieceIndex) {
+      const offsets = CASTLE_SLOTS[pieceIndex];
+      const [r, c] = castleCenter(index);
+      const base = [[-1.2, -1.2], [-1.2, 1.2], [1.2, -1.2], [1.2, 1.2]][pieceIndex];
+      return [r + base[0], c + base[1]];
+    }
+
+    function piecesOnCell(row, col) {
+      const entries = [];
+      game.players.forEach((player, playerIndex) => {
+        const path = playerPath(playerIndex);
+        player.pieces.forEach((position, pieceIndex) => {
+          if (position >= 0 && position < 58 && path[position][0] === row && path[position][1] === col) {
+            entries.push({ playerIndex, pieceIndex, position });
+          }
+        });
+      });
+      return entries;
+    }
+
+    function tokenCenter(playerIndex, pieceIndex) {
+      const position = playerAt(playerIndex, pieceIndex);
+      if (position < 0) return castleSlot(playerIndex, pieceIndex);
+      if (position >= 58) return [7.5, 7.5];
+      const [row, col] = coordAt(playerIndex, position);
+      const pieces = piecesOnCell(row, col);
+      const itemIndex = pieces.findIndex(piece => piece.playerIndex === playerIndex && piece.pieceIndex === pieceIndex);
+      if (pieces.length === 2) return [row + .5, col + (itemIndex === 0 ? .31 : .69)];
+      if (pieces.length > 2) {
+        const offsets = [[-.18, -.18], [-.18, .18], [.18, -.18], [.18, .18]];
+        const [dr, dc] = offsets[itemIndex % offsets.length];
+        return [row + .5 + dr, col + .5 + dc];
+      }
+      return [row + .5, col + .5];
+    }
+
+    function drawPiece(playerIndex, pieceIndex, movable) {
+      const player = game.players[playerIndex];
+      const [row, col] = tokenCenter(playerIndex, pieceIndex);
+      const radius = playerAt(playerIndex, pieceIndex) >= 0 && playerAt(playerIndex, pieceIndex) < 58
+        && piecesOnCell(...coordAt(playerIndex, playerAt(playerIndex, pieceIndex))).length > 1 ? .2 : .31;
+
+      if (movable) {
+        ctx.beginPath();
+        ctx.arc(col, row, radius + .14, 0, Math.PI * 2);
+        ctx.fillStyle = "#fff9";
+        ctx.fill();
+        ctx.strokeStyle = player.dark;
+        ctx.lineWidth = .06;
+        ctx.stroke();
+      }
+      ctx.beginPath();
+      ctx.ellipse(col + .04, row + .08, radius, radius * .9, 0, 0, Math.PI * 2);
+      ctx.fillStyle = "#0003";
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(col, row, radius, 0, Math.PI * 2);
+      ctx.fillStyle = player.value;
+      ctx.fill();
+      ctx.strokeStyle = "#fff";
+      ctx.lineWidth = .065;
+      ctx.stroke();
+      ctx.strokeStyle = player.dark;
+      ctx.lineWidth = .035;
+      ctx.stroke();
+      ctx.fillStyle = playerIndex === 2 ? "#463b1b" : "#fff";
+      ctx.font = `900 ${radius * 1.1}px system-ui, sans-serif`;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(String(pieceIndex + 1), col, row + .01);
+    }
+
+    function drawCastlePieces() {
+      game.players.forEach((player, playerIndex) => {
+        player.pieces.forEach((position, pieceIndex) => {
+          if (position === -1) drawPiece(playerIndex, pieceIndex, false);
+        });
+      });
+    }
+
+    function drawActivePieces() {
+      const legal = new Set(game.options.map(option => option.pieceIndex));
+      game.players.forEach((player, playerIndex) => {
+        player.pieces.forEach((position, pieceIndex) => {
+          if (position >= 0 && position < 58) {
+            drawPiece(playerIndex, pieceIndex, game.phase === "move" && playerIndex === game.current && legal.has(pieceIndex));
+          }
+        });
+      });
+      game.players.forEach((player, playerIndex) => {
+        player.pieces.forEach((position, pieceIndex) => {
+          if (position === 58) drawPiece(playerIndex, pieceIndex, false);
+        });
+      });
+    }
+
+    function canvasClick(event) {
+      if (game.phase !== "move") return;
+      const rect = canvas.getBoundingClientRect();
+      const col = (event.clientX - rect.left) / rect.width * 15;
+      const row = (event.clientY - rect.top) / rect.height * 15;
+      const options = new Set(game.options.map(option => option.pieceIndex));
+      let best = null;
+      let bestDistance = Infinity;
+      game.players[game.current].pieces.forEach((position, pieceIndex) => {
+        if (!options.has(pieceIndex)) return;
+        const [tokenRow, tokenCol] = tokenCenter(game.current, pieceIndex);
+        const distance = Math.hypot(row - tokenRow, col - tokenCol);
+        if (distance < bestDistance) { bestDistance = distance; best = pieceIndex; }
+      });
+      if (best !== null && bestDistance < .7) choosePiece(best);
+      else showToast("Choose one of the glowing pieces.");
+    }
+
+    function showToast(message) {
+      elements.toast.textContent = message;
+      elements.toast.classList.add("show");
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => elements.toast.classList.remove("show"), 2200);
+    }
+
+    function resizeCanvas() {
+      if (resizeFrame) cancelAnimationFrame(resizeFrame);
+      resizeFrame = requestAnimationFrame(() => {
+        const rect = canvas.getBoundingClientRect();
+        const ratio = Math.min(window.devicePixelRatio || 1, 2);
+        canvas.width = Math.round(rect.width * ratio);
+        canvas.height = Math.round(rect.height * ratio);
+        ctx.setTransform(canvas.width / 15, 0, 0, canvas.height / 15, 0, 0);
+        drawBoard();
+      });
+    }
+
+    elements.rollButton.addEventListener("click", rollDice);
+    document.getElementById("newGameButton").addEventListener("click", newGame);
+    document.getElementById("fullscreenButton").addEventListener("click", async () => {
+      try {
+        if (!document.fullscreenElement) await document.documentElement.requestFullscreen();
+        else await document.exitFullscreen();
+      } catch {
+        showToast("Fullscreen is unavailable in this browser.");
+      }
+    });
+    document.getElementById("rulesButton").addEventListener("click", () => { elements.infoModal.hidden = false; });
+    document.getElementById("closeInfoButton").addEventListener("click", () => { elements.infoModal.hidden = true; });
+    elements.continueButton.addEventListener("click", () => {
+      elements.quizModal.hidden = true;
+      finishAction();
+    });
+    canvas.addEventListener("click", canvasClick);
+    window.addEventListener("resize", resizeCanvas);
+    window.addEventListener("keydown", event => {
+      if (event.key === "Escape") {
+        elements.infoModal.hidden = true;
+        if (!elements.continueButton.hidden) elements.quizModal.hidden = true;
+      }
+    });
+
+    newGame();
+    resizeCanvas();
+  </script>
+</body>
+</html>
