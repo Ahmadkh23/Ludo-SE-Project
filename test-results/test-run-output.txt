@@ -1,7 +1,7 @@
 EduLudo test run
 Date: 2026-11-01
 Command: bash build.sh
-Result: 71 tests run, 71 passed, 0 failed
+Result: 92 tests run, 92 passed, 0 failed
 
 === Cleaning
 === Compiling application
@@ -53,6 +53,25 @@ GameRulesTest
   PASS  theGameEndsWhenAllPlayersButOneHaveFinished
   PASS  theThirdSixInARowIsCancelledAndTheTurnPasses
   PASS  tooBigARollMustBeUsedByAnotherPiece
+ModelValuesTest
+  PASS  aValidQuestionIsTrimmedAndKnowsItsCorrectAnswer
+  PASS  coloursAreSeatedClockwiseFromRed
+  PASS  difficultySettingsMatchTheSpecification
+  PASS  durationsAreFormattedAsMinutesOrHours
+  PASS  eachDifficultyUsesTheRightMultiplierDie
+  PASS  invalidQuestionsAreRejectedByTheRecord
+  PASS  questionAnswersCannotBeChangedAfterCreation
+  PASS  questionLevelsMoveOneTwoOrThreeSteps
+  PASS  theGameRecordNamesTheWinnerAndCopiesTheRanking
+  PASS  withIdKeepsEverythingElse
+PlayerAndPieceTest
+  PASS  aNewPlayerHasFourNumberedPiecesAllInTheCastle
+  PASS  aPieceCanBeSentBackToTheCastle
+  PASS  aPieceOnTheBoardIsActiveUntilItReachesTheFinish
+  PASS  positionsOutsideThePathAreRejected
+  PASS  skipNextTurnFlagAndDisplayText
+  PASS  thePieceListCannotBeChangedFromOutside
+  PASS  thePlayerHasFinishedOnlyWhenAllFourPiecesHave
 ComputerPlayerTest
   PASS  computerAnswersMatchTheConfiguredAccuracy
   PASS  computerOnlyGamesAlwaysFinishOnEveryLevel
@@ -71,6 +90,11 @@ PersistenceTest
   PASS  jsonRoundTripsAllValueTypes
   PASS  questionsAreStoredEncryptedAndCreatedFromDefaultsOnFirstRun
   PASS  theDefaultQuestionBankIsValidAndLargeEnough
+PasswordHasherTest
+  PASS  encryptingTheSameTextTwiceGivesDifferentCiphertext
+  PASS  hashingIsRepeatableForTheSameSaltAndIterations
+  PASS  theRightPasswordVerifiesAndAWrongOneDoesNot
+  PASS  theSaltAndIterationCountChangeTheHash
 SecurityTest
   PASS  encryptedDataRoundTripsAndTamperingIsDetected
   PASS  fiveWrongPasswordsLockTheLogin
@@ -86,6 +110,6 @@ QuestionServiceTest
   PASS  invalidQuestionsAreRejected
   PASS  theBankKeepsAtLeastThirtyQuestionsAndEveryLevel
 
-Tests run: 71, passed: 71, failed: 0
+Tests run: 92, passed: 92, failed: 0
 === Creating dist/EduLudo.jar
 Done: dist/EduLudo.jar  (run with: java -jar dist/EduLudo.jar)
